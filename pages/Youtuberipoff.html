@@ -1,0 +1,450 @@
+<html><head><base href="." />
+    <title>MyTube - Video Sharing Platform</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .header {
+            background-color: #ffffff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            color: #ff0000;
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .upload-btn {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-btn:hover {
+            background-color: #cc0000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,0,0,0.2);
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            padding: 32px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .thumbnail::before {
+            content: "▶";
+            position: absolute;
+            font-size: 48px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail:hover::before {
+            opacity: 1;
+        }
+
+        .video-info {
+            padding: 16px;
+        }
+
+        .video-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+
+        .video-author {
+            color: #666;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .video-author::before {
+            content: "";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: #ddd;
+            border-radius: 50%;
+        }
+
+        #upload-form {
+            display: none;
+            margin: 32px auto;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        #upload-form input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        #upload-form input[type="text"]:focus {
+            border-color: #ff0000;
+            outline: none;
+        }
+
+        #upload-form input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        #upload-form button {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 16px;
+            transition: all 0.3s ease;
+        }
+
+        #upload-form button:hover {
+            background-color: #cc0000;
+        }
+
+        .error-message {
+            color: #ff0000;
+            background-color: #fff0f0;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px 0;
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            font-size: 32px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #ff0000;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            max-height: 80vh;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                padding: 16px;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .upload-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <polygon points="10,8 16,12 10,16" fill="currentColor"/>
+            </svg>
+            MyTube
+        </div>
+        <button class="upload-btn" onclick="showUploadForm()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Upload Video
+        </button>
+    </div>
+
+    <div id="upload-form">
+        <h3>Upload New Video</h3>
+        <div class="error-message" id="errorMessage"></div>
+        <input type="file" id="videoFile" accept="video/*" onchange="handleVideoUpload(event)">
+        <input type="text" id="videoTitle" placeholder="Enter video title">
+        <input type="text" id="authorName" placeholder="Enter your name">
+        <button onclick="submitVideo()">Upload Video</button>
+    </div>
+
+    <div class="video-grid" id="videoGrid"></div>
+
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <video id="videoPlayer" controls>
+                Your browser does not support the video element.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        let videos = [];
+        const videoGrid = document.getElementById('videoGrid');
+        const videoModal = document.getElementById('videoModal');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        function loadVideos() {
+            const savedVideos = localStorage.getItem('mytubeVideos');
+            if (savedVideos) {
+                videos = JSON.parse(savedVideos);
+                renderVideos();
+            }
+        }
+
+        function saveVideos() {
+            localStorage.setItem('mytubeVideos', JSON.stringify(videos));
+        }
+
+        function showUploadForm() {
+            const form = document.getElementById('upload-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function handleVideoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > 5000000) {
+                    errorMessage.textContent = "File size too large. Please upload a smaller video (max 5MB).";
+                    errorMessage.style.display = "block";
+                    event.target.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    window.currentVideoURL = e.target.result;
+                    errorMessage.style.display = "none";
+                };
+                reader.onerror = function() {
+                    errorMessage.textContent = "Error reading file. Please try again.";
+                    errorMessage.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function submitVideo() {
+            const titleInput = document.getElementById('videoTitle');
+            const authorInput = document.getElementById('authorName');
+            
+            if (!window.currentVideoURL) {
+                errorMessage.textContent = "Please select a video file first.";
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            const title = titleInput.value || 'Untitled Video';
+            const author = authorInput.value || 'Anonymous';
+            
+            const video = {
+                id: Date.now(),
+                title: title,
+                url: window.currentVideoURL,
+                author: author,
+                thumbnail: generateThumbnail()
+            };
+            
+            videos.push(video);
+            saveVideos();
+            renderVideos();
+            
+            titleInput.value = '';
+            authorInput.value = '';
+            document.getElementById('videoFile').value = '';
+            document.getElementById('upload-form').style.display = 'none';
+            window.currentVideoURL = null;
+            errorMessage.style.display = "none";
+        }
+
+        function generateThumbnail() {
+            const colors = ['#ffeeee', '#eeffee', '#eeeeff', '#fff5ee'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function renderVideos() {
+            videoGrid.innerHTML = '';
+            videos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                videoCard.innerHTML = `
+                    <div class="thumbnail" 
+                         onclick="playVideo('${video.url}')"
+                         style="background-color: ${video.thumbnail}">
+                         <span>Click to Play</span>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-author">By: ${video.author}</div>
+                    </div>
+                `;
+                videoGrid.appendChild(videoCard);
+            });
+        }
+
+        function playVideo(url) {
+            if (!url) {
+                errorMessage.textContent = "No video source available.";
+                errorMessage.style.display = "block";
+                return;
+            }
+            videoPlayer.src = url;
+            videoModal.style.display = 'block';
+            videoPlayer.play().catch(error => {
+                console.error("Error playing video:", error);
+                errorMessage.textContent = "Error playing video. Please try again.";
+                errorMessage.style.display = "block";
+            });
+        }
+
+        function closeModal() {
+            videoModal.style.display = 'none';
+            videoPlayer.pause();
+            videoPlayer.src = '';
+            errorMessage.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target === videoModal) {
+                closeModal();
+            }
+        }
+
+        loadVideos();
+
+        if (videos.length === 0) {
+            videos = [
+                {
+                    id: 1,
+                    title: "Welcome to MyTube",
+                    author: "Admin",
+                    thumbnail: "#ffeeee",
+                    url: null
+                },
+                {
+                    id: 2,
+                    title: "Getting Started Guide",
+                    author: "Admin",
+                    thumbnail: "#eeffee",
+                    url: null
+                }
+            ];
+            saveVideos();
+            renderVideos();
+        }
+    </script>
+</body></html>
