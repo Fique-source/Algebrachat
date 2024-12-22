@@ -318,7 +318,7 @@
         function handleVideoUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                if (file.size > 5000000) {
+                if (file.size > 50000000000000000000000000000000000000000000000000) {
                     errorMessage.textContent = "File size too large. Please upload a smaller video (max 5MB).";
                     errorMessage.style.display = "block";
                     event.target.value = '';
