@@ -87,6 +87,22 @@
     margin-top: 1rem;
     display: none;
   }
+
+  .welcome-container {
+    display: none;
+    text-align: center;
+  }
+
+  .welcome-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .welcome-message {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
 </style></head><body>
   <div class="container">
     <div class="logo">
@@ -112,6 +128,13 @@
     </div>
   </div>
 
+  <div class="welcome-container" id="welcomePage">
+    <h1>Welcome AKSHITH! 🎉</h1>
+    <div class="welcome-message">
+      You have successfully logged into your account.
+    </div>
+  </div>
+
   <script>
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -127,6 +150,11 @@
         
         // Add success animation
         document.querySelector('.container').style.animation = 'success 0.5s';
+        
+        // Show success message and redirect after 2 seconds
+        setTimeout(() => {
+          window.location.href = 'https://www.youtube.com';  // Changed to redirect to YouTube
+        }, 2000);
       } else {
         successMessage.style.display = 'none';
         errorMessage.style.display = 'block';
